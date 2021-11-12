@@ -1,56 +1,20 @@
-import { bundleMDX } from "mdx-bundler";
-import * as React from "react";
-import { getMDXComponent } from "mdx-bundler/client";
+import Link from "next/link";
 
 export default function Home({ code, frontmatter }) {
-  // it's generally a good idea to memoize this function call to
-  // avoid re-creating the component every render.
-  const Component = React.useMemo(() => getMDXComponent(code), [code]);
   return (
     <>
-      <header>
-        <h1>{frontmatter.title}</h1>
-        <p>{frontmatter.description}</p>
-      </header>
-      <main>
-        <Component />
+      <main style={{ fontSize: 18, margin: "10px" }}>
+        <p>
+          Both work on the client in dev &amp; can be built. Only the
+          getStaticProps version works on Vercel for me.
+        </p>
+        <div style={{ color: "blue", marginBottom: 10 }}>
+          <Link href="/ssr">→ MDX-Bundler with getServerSideProps</Link>
+        </div>
+        <div style={{ color: "blue" }}>
+          <Link href="/ssg">→ MDX-Bundler with getStaticProps</Link>
+        </div>
       </main>
     </>
   );
 }
-
-export const getServerSideProps = async () => {
-  const mdxSource = `
----
-title: Example Post
-published: "2021-02-13"
-description: This is some description
----
-
-# Wahoo
-
-import Demo from './demo'
-
-Here's a **neat** demo:
-
-<Demo />
-`.trim();
-
-  const result = await bundleMDX(mdxSource, {
-    files: {
-      "./demo.tsx": `
-import * as React from 'react'
-
-function Demo() {
-  return <div>Neat demo!</div>
-}
-
-export default Demo
-    `,
-    },
-  });
-
-  const { code, frontmatter } = result;
-
-  return { props: { code, frontmatter } };
-};
